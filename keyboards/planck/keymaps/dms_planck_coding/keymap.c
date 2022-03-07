@@ -13,6 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * qmk compile -kb planck/rev6 -km dms_planck_coding
+ * qmk compile -kb planck/ez -km dms_ez_planck_coding
  */
 
 #include QMK_KEYBOARD_H
