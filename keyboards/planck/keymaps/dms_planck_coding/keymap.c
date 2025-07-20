@@ -19,6 +19,9 @@
 #include QMK_KEYBOARD_H
 #include "muse.h"
 #include "debug.h"
+#include "action_layer.h"
+#include "process_tap_dance.h"
+#include "quantum.h"
 
 
 enum planck_layers {
@@ -34,12 +37,30 @@ enum planck_keycodes {
   BACKLIT,
   MACRO_LOCK,
   MACRO_SCREENCAP,
+  MACRO_SCREENCAP5,
+
   MACRO_CTRL_ALT_DEL
 };
 
 #define LOWER MO(_LOWER)
 #define RAISE MO(_RAISE)
 #define NUMNUM MO(_NUMNUM)
+
+enum custom_keycodes {
+    EN_DASH = SAFE_RANGE,
+    EM_DASH
+};
+
+enum {
+    TD_DASHES
+};
+
+void dash_dance(tap_dance_state_t *state, void *user_data);
+
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_DASHES] = ACTION_TAP_DANCE_FN(dash_dance)
+};
+
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -87,16 +108,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Del  |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |   -  |   =  |   [  |   ]  |  \   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |  F7  |  F8  |  F9  |  F10 |  F11 |  F12 |ISO # |ISO / | ScCp | Lock |      |
+ * |      |  F7  |  F8  |  F9  |  F10 |  F11 |  F12 |ISO # |ISO / | ScCp5| Lock |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |      |      |      |      |             |      | Next | Vol- | Vol+ | Play |
  * `-----------------------------------------------------------------------------------'
  */
 [_RAISE] = LAYOUT_planck_grid(
-    KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,            KC_0,       KC_BSPC,
-    KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_MINS, KC_EQL,  KC_LBRC,         KC_RBRC,    KC_BSLS,
-    _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_NUHS, KC_NUBS, MACRO_SCREENCAP, MACRO_LOCK, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, KC_MNXT, KC_VOLD,         KC_VOLU,    KC_MPLY
+    KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,          KC_8,    KC_9,            KC_0,       KC_BSPC,
+    KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   TD(TD_DASHES), KC_EQL,  KC_LBRC,         KC_RBRC,    KC_BSLS,
+    _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_NUHS,       KC_NUBS, MACRO_SCREENCAP5,MACRO_LOCK, _______,
+    _______, _______, _______, _______, _______, _______, _______, _______,       KC_MNXT, KC_VOLD,         KC_VOLU,    KC_MPLY
 ),
 
 
@@ -108,36 +129,37 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |      |      |Aud on|Audoff|AGnorm|AGswap|Qwerty|      |      | PrSc |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |      |      |      |      |      |      |      |      |      | ScCp |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |      |      |      |      |             |      |      |      |      |      |
  * `-----------------------------------------------------------------------------------'
  */
 [_ADJUST] = LAYOUT_planck_grid(
-    _______, RESET,   _______, RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD,  RGB_VAI, RGB_VAD, MACRO_CTRL_ALT_DEL ,
-    _______, _______, _______, AU_ON,   AU_OFF,  AG_NORM, AG_SWAP, QWERTY,  _______,  _______, KC_PSCR, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______,  _______, _______, _______
+    _______, RESET,   _______, RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD,  RGB_VAI,        RGB_VAD, MACRO_CTRL_ALT_DEL ,
+    _______, _______, _______, AU_ON,   AU_OFF,  AG_NORM, AG_SWAP, QWERTY,  _______,  _______,        KC_PSCR, _______,
+    _______, _______, _______, _______, _______, _______, _______, _______, _______, MACRO_SCREENCAP, _______, _______,
+    _______, _______, _______, _______, _______, _______, _______, _______, _______,  _______,        _______, _______
 ),
 
 /* Extra Stuff
 * ,-----------------------------------------------------------------------------------.
-* |      |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |  F7  |  F8  |  F9  | F10  |C A D |
+* |  Br- |  Br+ |  MC  | Spot | Dict |Sleep | Prev | Play | Next | Mute | Vol- | Vol+ |
 * |------+------+------+------+------+-------------+------+------+------+------+------|
-* |      |  F11 |  F12 |      |      |      |      |      |      |      | PrSc |      |
+* |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |  F7  |  F8  |  F9  |  F10 |  F11 |  F12 |
 * |------+------+------+------+------+------|------+------+------+------+------+------|
-* |      |      |      |      |      |      |      |      |      |      |      |Enter |
+* |      |C A D |      |      |      |      |      |  -   |  –   |  —   |      |Enter |
 * |------+------+------+------+------+------+------+------+------+------+------+------|
-* |      |      |      |      |      |    Space    |      |      |   .  |      |      |
+* |      |      |      |      |      |    Space    |      |      |      |      |      |
 * `-----------------------------------------------------------------------------------'
 */
 [_NUMNUM] = LAYOUT_planck_grid(
-    XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,    KC_F7,    KC_F8,   KC_F9,    KC_F10,   MACRO_CTRL_ALT_DEL,
-    XXXXXXX, KC_F11,  KC_F12,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,  XXXXXXX, XXXXXXX,  KC_PSCR,  XXXXXXX,
-    _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,  XXXXXXX, XXXXXXX,  XXXXXXX,  KC_ENT,
-    _______, _______, _______, _______, _______, KC_SPC,  KC_SPC,   _______,  _______, _______,  _______,  _______
+    KC_BRID, KC_BRIU,            KC_MCTL, KC_SPOT, KC_DICT, KC_SLEEP, KC_MRWD,KC_MPLY, KC_MFFD, KC_MUTE, KC_VOLD, KC_VOLU,
+    KC_F1,   KC_F2,              KC_F3,   KC_F4,   KC_F5,    KC_F6,  KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
+    _______, MACRO_CTRL_ALT_DEL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_MINS, EN_DASH, EM_DASH, XXXXXXX, KC_ENT,
+    _______, _______,            _______, _______, _______, KC_SPC,   KC_SPC, _______, _______, _______, _______, _______
 )
-};
+}
+
 
 
 #ifdef AUDIO_ENABLE
@@ -150,49 +172,71 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case QWERTY:
-      if (record->event.pressed) {
-        print("mode just switched to qwerty and this is a huge string\n");
-        set_single_persistent_default_layer(_QWERTY);
-      }
-      return false;
-      break;
-    case BACKLIT:
-      if (record->event.pressed) {
-        register_code(KC_RSFT);
-        #ifdef BACKLIGHT_ENABLE
-          backlight_step();
-        #endif
-        #ifdef KEYBOARD_planck_rev5
-          writePinLow(E6);
-        #endif
-      } else {
-        unregister_code(KC_RSFT);
-        #ifdef KEYBOARD_planck_rev5
-          writePinHigh(E6);
-        #endif
-      }
-      return false;
-      break;
-    case MACRO_LOCK:
-      if (record->event.pressed) {
-        SEND_STRING(SS_LCTL(SS_LGUI(SS_TAP(X_Q))));
+    switch (keycode) {
+        case QWERTY:
+            if (record->event.pressed) {
+                print("mode just switched to qwerty and this is a huge string\n");
+                set_single_persistent_default_layer(_QWERTY);
+            }
+            return false;
 
-      }
-      break;
-    case MACRO_SCREENCAP:
-      if (record->event.pressed) {
-        SEND_STRING(SS_LGUI(SS_LSFT(SS_TAP(X_3))));
-      }
-      break;
-    case MACRO_CTRL_ALT_DEL:
-      if (record->event.pressed) {
-            SEND_STRING(SS_LCTL(SS_LALT(SS_TAP(X_DELETE))));
-      }
-  }
-  return true;
+        case BACKLIT:
+            if (record->event.pressed) {
+                register_code(KC_RSFT);
+#ifdef BACKLIGHT_ENABLE
+                backlight_step();
+#endif
+#ifdef KEYBOARD_planck_rev5
+                writePinLow(E6);
+#endif
+            } else {
+                unregister_code(KC_RSFT);
+#ifdef KEYBOARD_planck_rev5
+                writePinHigh(E6);
+#endif
+            }
+            return false;
+
+        case MACRO_LOCK:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LCTL(SS_LGUI(SS_TAP(X_Q))));
+            }
+            return false;
+
+        case MACRO_SCREENCAP:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LGUI(SS_LSFT(SS_TAP(X_3))));
+            }
+            return false;
+
+        case MACRO_SCREENCAP5:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LGUI(SS_LSFT(SS_TAP(X_5))));
+            }
+            return false;
+
+        case MACRO_CTRL_ALT_DEL:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LCTL(SS_LALT(SS_TAP(X_DELETE))));
+            }
+            return false;
+
+        case EN_DASH:
+            if (record->event.pressed) {
+                SEND_STRING("–");  // U+2013
+            }
+            return false;
+
+        case EM_DASH:
+            if (record->event.pressed) {
+                SEND_STRING("—");  // U+2014
+            }
+            return false;
+    }
+
+    return true;
 }
+
 
 bool muse_mode = false;
 uint8_t last_muse_note = 0;
@@ -295,3 +339,14 @@ bool music_mask_user(uint16_t keycode) {
       return true;
   }
 }
+
+void dash_dance(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        SEND_STRING("-");
+    } else if (state->count == 2) {
+        SEND_STRING(SS_LALT("-")); // Option + - → en dash
+    } else if (state->count == 3) {
+        SEND_STRING(SS_LSFT(SS_LALT("-"))); // Shift + Option + - → em dash
+    }
+}
+

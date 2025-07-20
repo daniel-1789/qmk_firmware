@@ -1,4 +1,3 @@
 SRC += muse.c
 
-#define CONSOLE_ENABLE
-#define DEBUG_ENABLE
+TAP_DANCE_ENABLE = yes
