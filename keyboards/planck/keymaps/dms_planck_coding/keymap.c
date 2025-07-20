@@ -23,6 +23,10 @@
 #include "process_tap_dance.h"
 #include "quantum.h"
 
+#define KC_SPOT XXXXXXX
+#define KC_DICT XXXXXXX
+#define KC_SLEEP KC_SLEP
+
 
 enum planck_layers {
     _QWERTY,
@@ -38,18 +42,18 @@ enum planck_keycodes {
   MACRO_LOCK,
   MACRO_SCREENCAP,
   MACRO_SCREENCAP5,
+  MACRO_CTRL_ALT_DEL,
+  EN_DASH,
+  EM_DASH,
+  MACRO_SPOTLIGHT,
+  MACRO_DICTATION
 
-  MACRO_CTRL_ALT_DEL
+
 };
 
 #define LOWER MO(_LOWER)
 #define RAISE MO(_RAISE)
 #define NUMNUM MO(_NUMNUM)
-
-enum custom_keycodes {
-    EN_DASH = SAFE_RANGE,
-    EM_DASH
-};
 
 enum {
     TD_DASHES
@@ -153,12 +157,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 * `-----------------------------------------------------------------------------------'
 */
 [_NUMNUM] = LAYOUT_planck_grid(
-    KC_BRID, KC_BRIU,            KC_MCTL, KC_SPOT, KC_DICT, KC_SLEEP, KC_MRWD,KC_MPLY, KC_MFFD, KC_MUTE, KC_VOLD, KC_VOLU,
-    KC_F1,   KC_F2,              KC_F3,   KC_F4,   KC_F5,    KC_F6,  KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
-    _______, MACRO_CTRL_ALT_DEL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_MINS, EN_DASH, EM_DASH, XXXXXXX, KC_ENT,
-    _______, _______,            _______, _______, _______, KC_SPC,   KC_SPC, _______, _______, _______, _______, _______
+    KC_BRID, KC_BRIU,            KC_MCTL, MACRO_SPOTLIGHT, MACRO_DICTATION, KC_SLEEP, KC_MRWD,KC_MPLY, KC_MFFD, KC_MUTE, KC_VOLD, KC_VOLU,
+    KC_F1,   KC_F2,              KC_F3,   KC_F4,           KC_F5,           KC_F6,  KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
+    _______, MACRO_CTRL_ALT_DEL, XXXXXXX, XXXXXXX,         XXXXXXX,         XXXXXXX, XXXXXXX, KC_MINS, EN_DASH, EM_DASH, XXXXXXX, KC_ENT,
+    _______, _______,            _______, _______,         _______,         KC_SPC,   KC_SPC, _______, _______, _______, _______, _______
 )
-}
+};
 
 
 
@@ -232,6 +236,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 SEND_STRING("—");  // U+2014
             }
             return false;
+
+        case MACRO_SPOTLIGHT:
+            if (record->event.pressed) {
+                SEND_STRING(SS_LGUI(" "));
+            }
+            return false;
+
+        case MACRO_DICTATION:
+            if (record->event.pressed) {
+                // Dictation may need to be remapped in macOS System Settings to use Cmd+D
+                SEND_STRING(SS_LGUI("D"));
+            }
+            return false;
+
     }
 
     return true;
