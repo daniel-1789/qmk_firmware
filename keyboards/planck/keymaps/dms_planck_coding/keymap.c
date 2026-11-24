@@ -23,8 +23,6 @@
 #include "process_tap_dance.h"
 #include "quantum.h"
 
-#define KC_SPOT XXXXXXX
-#define KC_DICT XXXXXXX
 #define KC_SLEEP KC_SLEP
 
 
@@ -89,7 +87,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Lower
  * ,-----------------------------------------------------------------------------------.
- * |   ~  |   !  |   @  |   #  |   $  |   %  |   ^  |   &  |   *  |   (  |   )  | Bksp |
+ * |   ~  |   !  |   @  |   #  |   $  |   %  |   ^  |   &  |   *  |   (  |   )  | Del  |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Del  |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |   _  |   +  |   [  |   ]  |  |   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
@@ -99,7 +97,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_LOWER] = LAYOUT_planck_grid(
-    KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR,    KC_ASTR,    KC_LPRN, KC_RPRN, KC_BSPC,
+    KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR,    KC_ASTR,    KC_LPRN, KC_RPRN, KC_DEL,
     KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_UNDS,    KC_PLUS,    KC_LBRC, KC_RBRC, KC_PIPE,
     _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  S(KC_NUHS), S(KC_NUBS), KC_LCBR, KC_RCBR,  _______,
     _______, _______, _______, _______, _______, _______, _______, _______,    KC_HOME,    KC_PGDN, KC_PGUP, KC_END
@@ -108,60 +106,59 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* Raise
  * ,-----------------------------------------------------------------------------------.
- * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  | Bksp |
+ * |   `  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  | Del  |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Del  |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |   -  |   =  |   [  |   ]  |  \   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |  F7  |  F8  |  F9  |  F10 |  F11 |  F12 |ISO # |ISO / | ScCp5| Lock |      |
+ * |      |  F7  |  F8  |  F9  |  F10 |  F11 |  F12 |ISO # |ISO / | ScCp5|      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |      |      |      |      |             |      | Next | Vol- | Vol+ | Play |
  * `-----------------------------------------------------------------------------------'
  */
 [_RAISE] = LAYOUT_planck_grid(
-    KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,          KC_8,    KC_9,            KC_0,       KC_BSPC,
+    KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,          KC_8,    KC_9,            KC_0,       KC_DEL,
     KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   TD(TD_DASHES), KC_EQL,  KC_LBRC,         KC_RBRC,    KC_BSLS,
-    _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_NUHS,       KC_NUBS, MACRO_SCREENCAP5,MACRO_LOCK, _______,
+    _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_NUHS,       KC_NUBS, MACRO_SCREENCAP5, _______,   _______,
     _______, _______, _______, _______, _______, _______, _______, _______,       KC_MNXT, KC_VOLD,         KC_VOLU,    KC_MPLY
 ),
 
+    /* Adjust (Lower + Raise)
+    * ,-----------------------------------------------------------------------------------.
+    * |  Br- |  Br+ |  MC  | Spot | Dict |Sleep | Prev | Play | Next | Mute | Vol- | Vol+ |
+    * |------+------+------+------+------+-------------+------+------+------+------+------|
+    * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |  F7  |  F8  |  F9  |  F10 |  F11 |  F12 |
+    * |------+------+------+------+------+------|------+------+------+------+------+------|
+    * |      |C A D |      |      |      |      |      |  -   |  –   |  —   |      |Enter |
+    * |------+------+------+------+------+------+------+------+------+------+------+------|
+    * |      |      |      |      |      |    Space    |      |      |      |      |      |
+    * `-----------------------------------------------------------------------------------'
+    */
+   [_ADJUST] = LAYOUT_planck_grid(
+        KC_BRID, KC_BRIU,            KC_MCTL, MACRO_SPOTLIGHT, MACRO_DICTATION, KC_SLEEP, KC_MRWD,KC_MPLY, KC_MFFD, KC_MUTE, KC_VOLD, KC_VOLU,
+        KC_F1,   KC_F2,              KC_F3,   KC_F4,           KC_F5,           KC_F6,  KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
+        _______, MACRO_CTRL_ALT_DEL, XXXXXXX, XXXXXXX,         XXXXXXX,         XXXXXXX, XXXXXXX, KC_MINS, EN_DASH, EM_DASH, XXXXXXX, KC_ENT,
+        _______, _______,            _______, _______,         _______,         KC_SPC,   KC_SPC, _______, _______, _______, _______, _______
+    ),
 
-
-/* Adjust (Lower + Raise)
+/* Extra Stuff "NumNum"
  *                      v------------------------RGB CONTROL--------------------v
  * ,-----------------------------------------------------------------------------------.
  * |      | Reset|      | RGB  |RGBMOD| HUE+ | HUE- | SAT+ | SAT- |BRGTH+|BRGTH-|C A D |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |      |      |Aud on|Audoff|AGnorm|AGswap|Qwerty|      |      | PrSc |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |      |      |      |      | ScCp |      |      |
+ * |      |      |      |      |      |      |      |      |      | ScCp | Lock |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |      |      |      |      |             |      |      |      |      |      |
  * `-----------------------------------------------------------------------------------'
  */
-[_ADJUST] = LAYOUT_planck_grid(
-    _______, RESET,   _______, RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD,  RGB_VAI,        RGB_VAD, MACRO_CTRL_ALT_DEL ,
-    _______, _______, _______, AU_ON,   AU_OFF,  AG_NORM, AG_SWAP, QWERTY,  _______,  _______,        KC_PSCR, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______, MACRO_SCREENCAP, _______, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______,  _______,        _______, _______
-),
-
-/* Extra Stuff
-* ,-----------------------------------------------------------------------------------.
-* |  Br- |  Br+ |  MC  | Spot | Dict |Sleep | Prev | Play | Next | Mute | Vol- | Vol+ |
-* |------+------+------+------+------+-------------+------+------+------+------+------|
-* |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |  F7  |  F8  |  F9  |  F10 |  F11 |  F12 |
-* |------+------+------+------+------+------|------+------+------+------+------+------|
-* |      |C A D |      |      |      |      |      |  -   |  –   |  —   |      |Enter |
-* |------+------+------+------+------+------+------+------+------+------+------+------|
-* |      |      |      |      |      |    Space    |      |      |      |      |      |
-* `-----------------------------------------------------------------------------------'
-*/
 [_NUMNUM] = LAYOUT_planck_grid(
-    KC_BRID, KC_BRIU,            KC_MCTL, MACRO_SPOTLIGHT, MACRO_DICTATION, KC_SLEEP, KC_MRWD,KC_MPLY, KC_MFFD, KC_MUTE, KC_VOLD, KC_VOLU,
-    KC_F1,   KC_F2,              KC_F3,   KC_F4,           KC_F5,           KC_F6,  KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
-    _______, MACRO_CTRL_ALT_DEL, XXXXXXX, XXXXXXX,         XXXXXXX,         XXXXXXX, XXXXXXX, KC_MINS, EN_DASH, EM_DASH, XXXXXXX, KC_ENT,
-    _______, _______,            _______, _______,         _______,         KC_SPC,   KC_SPC, _______, _______, _______, _______, _______
+    _______, RESET,   _______, RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD,  RGB_VAI,        RGB_VAD,    MACRO_CTRL_ALT_DEL ,
+    _______, _______, _______, AU_ON,   AU_OFF,  AG_NORM, AG_SWAP, QWERTY,  _______,  _______,        KC_PSCR,    _______,
+    _______, _______, _______, _______, _______, _______, _______, _______, _______, MACRO_SCREENCAP, MACRO_LOCK, _______,
+    _______, _______, _______, _______, _______, _______, _______, _______, _______,  _______,        _______, _______
 )
+
 };
 
 
@@ -227,13 +224,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case EN_DASH:
             if (record->event.pressed) {
-                SEND_STRING("–");  // U+2013
+				SEND_STRING(SS_LALT("-"));
+                // SEND_STRING("–");  // U+2013
             }
             return false;
 
         case EM_DASH:
             if (record->event.pressed) {
-                SEND_STRING("—");  // U+2014
+		        SEND_STRING(SS_LSFT(SS_LALT("-"))); // Shift + Option + - → em dash
+                // SEND_STRING("—");  // U+2014
             }
             return false;
 
